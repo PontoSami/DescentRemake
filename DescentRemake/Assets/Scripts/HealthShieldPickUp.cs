@@ -13,21 +13,35 @@ using System.Collections;
 
 public class HealthShieldPickUp : MonoBehaviour {
 
-    public int pickupType; // 1 = Health pick up, 2 = Shield pick up
-    public int healamount; // The amount of health that is gained from the pickup
-    public int shieldamount; // The amount of shield that is gained from the pickup
-    bool picked;
-
-    void Start()
-    {
-        
-    }
-
+    public int pickupType; //1 = Health pick up, 2 = Shield pick up
+    public int healamount; //The amount of health that is gained from the pickup
+    public int shieldamount; //The amount of shield that is gained from the pickup
+    public float timetorespawn; //Pickup respawn time in seconds
+    public int respawnable; //Pickup respawns if 1
+    private float respawntimer;
+   
     void Update()
-    {       
+    {
+        if (respawnable == 1)
+        {
 
+            if (this.gameObject.GetComponent<Renderer>().enabled == false)
+            {
+                respawntimer += Time.deltaTime;
+                if (respawntimer >= timetorespawn)
+                {
+                    RespawnPickup();
+                }
+            }
+        }
     }
-        
+
+    void RespawnPickup()
+    {    
+        this.gameObject.GetComponent<Renderer>().enabled = true;
+        respawntimer = 0.0f;
+    }
+
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Player")
@@ -38,11 +52,11 @@ public class HealthShieldPickUp : MonoBehaviour {
                 GameObject Player = GameObject.Find("PlayerPrefab");
                 HealthShield hsclass = Player.GetComponent<HealthShield>();
                 
-                if (hsclass.health < hsclass.maxHealth)
+                if (hsclass.health < hsclass.maxHealth && this.gameObject.GetComponent<Renderer>().enabled == true)
                 {
 
-                    gameObject.SetActive(false);
-                    
+                    this.gameObject.GetComponent<Renderer>().enabled = false;
+
                     hsclass.health += healamount;
                     if (hsclass.health >= hsclass.maxHealth)
                     {
@@ -57,21 +71,20 @@ public class HealthShieldPickUp : MonoBehaviour {
                 GameObject Player = GameObject.Find("PlayerPrefab");
                 HealthShield hsclass = Player.GetComponent<HealthShield>();
 
-                if (hsclass.shield < hsclass.maxShield)
+                if (hsclass.shield < hsclass.maxShield && this.gameObject.GetComponent<Renderer>().enabled == true)
                 {
 
-                    Destroy(gameObject);
-
-                    hsclass.shield += shieldamount;
-                    if (hsclass.shield >= hsclass.maxShield)
-                    {
-                        hsclass.shield = hsclass.maxShield;
-                    }
+                    this.gameObject.GetComponent<Renderer>().enabled = false;
                     
+                        hsclass.shield += shieldamount;
+                        if (hsclass.shield >= hsclass.maxShield)
+                        {
+                            hsclass.shield = hsclass.maxShield;
+                        }
+                        
                 }
             }
         }
     }
-
-    
+  
 }
